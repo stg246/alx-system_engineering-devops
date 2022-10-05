@@ -1,2 +1,2 @@
 #!/bin/bash
-re -rf /tem/my_first_directory
+rm -rf /tem/my_first_directory
