@@ -1,0 +1,10 @@
+docker pull holbertonschool/265-0
+docker run -p 8080:80 -d --name my_container holbertonschool/265-0
+docker ps
+docker exec -it my_container /bin/bash
+apt-get update
+apt-get install apache2 -y
+service apache2 start
+echo "Hello Holberton" > /var/www/html/index.html
+exit
+curl 0:8080
