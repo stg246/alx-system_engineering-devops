@@ -1,10 +1,37 @@
-docker pull holbertonschool/265-0
-docker run -p 8080:80 -d --name my_container holbertonschool/265-0
-docker ps
-docker exec -it my_container /bin/bash
-apt-get update
-apt-get install apache2 -y
-service apache2 start
-echo "Hello Holberton" > /var/www/html/index.html
-exit
-curl 0:8080
+#!/usr/bin/env bash
+
+
+import docker
+import requests
+
+# Create a client object
+client = docker.from_env()
+
+# Pull the Docker image
+client.images.pull('holbertonschool/265-0')
+
+# Run the container
+container = client.containers.run('holbertonschool/265-0', detach=True, ports={'80/tcp': 8080})
+
+# Check the status of the container
+print(container.status)
+
+# Install Apache web server
+_, output = container.exec_run('apt-get update && apt-get install -y apache2')
+print(output.decode())
+
+# Start the Apache service
+_, output = container.exec_run('service apache2 start')
+print(output.decode())
+
+# Create a new HTML file
+_, output = container.exec_run('echo "Hello Holberton" > /var/www/html/index.html')
+print(output.decode())
+
+# Stop the container
+container.stop()
+
+# Test the container
+response = requests.get('http://localhost:8080')
+print(response.text)
+
