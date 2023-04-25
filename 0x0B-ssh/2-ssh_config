@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-# This script uses an SSH configuration file for the local SSH client.
-
-# ~/.ssh/config
-Host 161099-web-01
-    User ubuntu
-    IdentityFile ~/.ssh/school
-    PreferredAuthentications publickey
-    PasswordAuthentication no
