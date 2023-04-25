@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-# This script creates an RSA key pair with a private key named school, 4096 bits long, and protected by the passphrase betty.
-
-ssh-keygen -t rsa -b 4096 -f ~/.ssh/school -N "betty"
