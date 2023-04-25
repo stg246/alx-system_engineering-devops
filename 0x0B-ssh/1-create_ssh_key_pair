@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
-# This script creates an RSA key pair using Python, with the name of the private key as "school", 4096 bits in the key, and the passphrase as "betty".
+# This script creates an RSA key pair, with the name of the private key as "school", 4096 bits in the key, and the passphrase as "betty".
 
-python -c "from Crypto.PublicKey import RSA;RSA.generate(4096).export_key('PEM', passphrase='betty', pkcs=1).decode('utf-8')" > school
+ssh-keygen -t rsa -b 4096 -f school -N betty
+
+
+
+
 
