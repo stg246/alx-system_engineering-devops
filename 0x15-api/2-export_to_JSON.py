@@ -1,30 +1,41 @@
 #!/usr/bin/python3
+
 """
-Export api response to Json
+Python script that exports data in the JSON format.
 """
 
+from requests import get
+from sys import argv
 import json
-import requests
-import sys
-
 
 if __name__ == "__main__":
-    url = "https://jsonplaceholder.typicode.com/"
-    employee_id = sys.argv[1]
-    filename = employee_id + ".json"
+    response = get('https://jsonplaceholder.typicode.com/todos/')
+    data = response.json()
 
-    employee = requests.get(url + "users/" + employee_id)
-    employee = employee.json()
+    row = []
+    response2 = get('https://jsonplaceholder.typicode.com/users')
+    data2 = response2.json()
 
-    tasks = requests.get(url + "todos?userId=" + employee_id)
-    tasks = tasks.json()
+    for i in data2:
+        if i['id'] == int(argv[1]):
+            u_name = i['username']
+            id_no = i['id']
 
-    tasks_list = []
-    for item in tasks:
-        tasks_list.append(item)
+    row = []
 
-    employee_tasks = {}
-    employee_tasks[employee_id] = tasks_list
+    for i in data:
 
-    with open(filename, mode="w") as json_file:
-        json.dump(employee_tasks, json_file)
+        new_dict = {}
+
+        if i['userId'] == int(argv[1]):
+            new_dict['username'] = u_name
+            new_dict['task'] = i['title']
+            new_dict['completed'] = i['completed']
+            row.append(new_dict)
+
+    final_dict = {}
+    final_dict[id_no] = row
+    json_obj = json.dumps(final_dict)
+
+    with open(argv[1] + ".json",  "w") as f:
+        f.write(json_obj)

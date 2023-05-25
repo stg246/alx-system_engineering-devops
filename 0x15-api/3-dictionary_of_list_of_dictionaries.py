@@ -1,31 +1,39 @@
 #!/usr/bin/python3
+
 """
-Script returns nested dictionaries
+Python script that exports data in the JSON format.
 """
 
+from requests import get
 import json
-import requests
-import sys
-
 
 if __name__ == "__main__":
-    url = "https://jsonplaceholder.typicode.com/"
-    filename = "todo_all_employees.json"
+    response = get('https://jsonplaceholder.typicode.com/todos/')
+    data = response.json()
 
-    employees = requests.get(url + "users/")
-    employees = employees.json()
+    row = []
+    response2 = get('https://jsonplaceholder.typicode.com/users')
+    data2 = response2.json()
 
-    employee_tasks = {}
-    for employee in employees:
-        employee_id = employee.get('id')
-        tasks = requests.get(url + "todos?userId=" + str(employee_id))
-        tasks = tasks.json()
+    new_dict1 = {}
 
-        tasks_list = []
-        for item in tasks:
-            tasks_list.append(item)
+    for j in data2:
 
-        employee_tasks[employee_id] = tasks_list
+        row = []
+        for i in data:
 
-    with open(filename, mode="w") as json_file:
-        json.dump(employee_tasks, json_file)
+            new_dict2 = {}
+
+            if j['id'] == i['userId']:
+
+                new_dict2['username'] = j['username']
+                new_dict2['task'] = i['title']
+                new_dict2['completed'] = i['completed']
+                row.append(new_dict2)
+
+        new_dict1[j['id']] = row
+
+    with open("todo_all_employees.json",  "w") as f:
+
+        json_obj = json.dumps(new_dict1)
+        f.write(json_obj)
