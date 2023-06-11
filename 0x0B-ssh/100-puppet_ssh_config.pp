@@ -2,6 +2,6 @@
 file { '/etc/ssh/sshd_config':
   ensure  => present,
   mode    => '0600',
-  content => "Host *\n  IdentityFile ~/.ssh/school\n  PasswordAuthentication no\n",
+  content => "Host *\n  IdentityFile ~/.ssh/id_rsa.pub\n  PasswordAuthentication no\n",
 }
 
