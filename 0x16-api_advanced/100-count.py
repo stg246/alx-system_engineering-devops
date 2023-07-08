@@ -6,40 +6,24 @@ sorted count of given keywords.
 import requests, json
 
 
-def count_words(subreddit, word_list, hot_list=[], viewed_count=0, after=''):
-    """
-    Returns and parses the title of all hot articles, and prints a
-    sorted count of given keywords.
-    """
-    base = 'https://www.reddit.com/'
-    endpoint = 'r/{}/hot.json'.format(subreddit)
-    query_string = '?show="all"&limit=100&after={}&count={}'.format(
-        after, viewed_count)
-    url = base + endpoint + query_string
-    headers = {'User-Agent': 'Python/1.0(Holberton School 0x16 task 3)'}
-    response = requests.get(url, headers=headers)
-    if not response.ok:
-            return
-
-    data = response.json()['data']
-    for post in data['children']:
-        hot_list.append(post['data']['title'])
-    after = data['after']
-    dist = data['dist']
-    if (after):
-        count_words(subreddit, [], hot_list, viewed_count + dist, after)
-
-    if viewed_count == 0:
-        result = {}
-        word_list = [word.lower() for word in word_list]
-        hot_words = ' '.join(hot_list).lower().split(' ')
-        for hot_word in hot_words:
-            for search_word in word_list:
-                if hot_word == search_word:
-                    result.setdefault(search_word, 0)
-                    result[search_word] += 1
-
-        for word, count in sorted(
-            sorted(result.items()), key=lambda x: x[1], reverse=True
-        ):
-            print("{}: {}".format(word, count))
+def count_words(subreddit, word_list):
+  """
+  Queries the Reddit API, parses the title of all hot articles, and prints a sorted count of given keywords (case-insensitive, delimited by spaces. Javascript should count as javascript, but java should not).
+  Args:
+    subreddit: The name of the subreddit to query.
+    word_list: A list of keywords to search for.
+  """
+  # Get the hot articles from the subreddit.
+  hot_articles = reddit.subreddit(subreddit).hot(limit=100)
+  # Iterate over the hot articles and parse the title for each keyword.
+  for article in hot_articles:
+    for word in word_list:
+      # Check if the keyword appears in the title.
+      if word.lower() in article.title.lower():
+        # Increment the count of the keyword.
+        word_count[word.lower()] += 1
+  # Sort the keywords by their count in descending order.
+  word_count = sorted(word_count.items(), key=lambda x: x[1], reverse=True)
+  # Print the sorted count of keywords.
+  for word, count in word_count:
+    print(f"{word}: {count}")
