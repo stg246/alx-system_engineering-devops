@@ -1,29 +1,38 @@
 #!/usr/bin/python3
-# Defines recurse function
+"""
+Returns a list containing the titles of all hot
+articles for a given subreddit.
+"""
+import requests
 
-import requests as r
 
-
-def recurse(subreddit, hot_list=[], last=None):
+def recurse(subreddit, hot_list=[], count=0, after=''):
     """
-    queries the Reddit API for the titles of all a subreddit's hot articles
-
-    return: List of the titles, or None if none
+    Queries the Reddit api and returns a list containing the titles of all hot
+    articles for a given subreddit.
     """
-    g = r.get('https://api.reddit.com/r/{}/hot'
-              .format(subreddit), headers={
-                  'user-agent': 'python:v3.5.2 (by /u/maxastuart)'},
-              params={'limit': 1, 'after': last})
-    if g.status_code is 200 and g.json().get('data') is not None:
-        p = g.json().get('data').get('children')
-        if len(p) > 0:
-            t = p[0].get('data').get('title')
-            if g.json().get('data').get('after'):
-                return [t] + (recurse(subreddit, hot_list,
-                                      g.json().get('data').get('after')))
-            else:
-                return []
+    base = 'https://www.reddit.com/'
+    endpoint = 'r/{}/hot.json'.format(subreddit)
+    query_string = '?show="all"&limit=100&after={}&count={}'.format(
+        after, count)
+    url = base + endpoint + query_string
+    headers = {'User-Agent': 'Python/1.0(Holberton School 0x16 task 2)'}
+    response = requests.get(url, headers=headers)
+    if not response.ok:
+        if len(hot_list) == 0:
+            return None
         else:
-            return []
-    else:
+            return hot_list
+
+    data = response.json()['data']
+    for post in data['children']:
+        hot_list.append(post['data']['title'])
+    after = data['after']
+    dist = data['dist']
+    if (after):
+        recurse(subreddit, hot_list, count + dist, after)
+
+    if len(hot_list) == 0:
         return None
+    else:
+        return hot_list

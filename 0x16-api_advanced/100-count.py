@@ -1,47 +1,45 @@
 #!/usr/bin/python3
-"""Contains the count_words function"""
-import requests
+"""
+parses the title of all hot articles, and prints a
+sorted count of given keywords.
+"""
+import requests, json
 
-def count_words(subreddit, word_list, after=None, word_count=None):
-    if word_count is None:
-        word_count = {}
 
-    if after is None:
-        url = f"https://www.reddit.com/r/{subreddit}/hot.json"
-    else:
-        url = f"https://www.reddit.com/r/{subreddit}/hot.json?after={after}"
-
-    headers = {
-        "User-Agent": "YourAppName/1.0"
-    }
+def count_words(subreddit, word_list, hot_list=[], viewed_count=0, after=''):
+    """
+    Returns and parses the title of all hot articles, and prints a
+    sorted count of given keywords.
+    """
+    base = 'https://www.reddit.com/'
+    endpoint = 'r/{}/hot.json'.format(subreddit)
+    query_string = '?show="all"&limit=100&after={}&count={}'.format(
+        after, viewed_count)
+    url = base + endpoint + query_string
+    headers = {'User-Agent': 'Python/1.0(Holberton School 0x16 task 3)'}
     response = requests.get(url, headers=headers)
+    if not response.ok:
+            return
 
-    if response.status_code == 200:
-        data = response.json()
-        posts = data['data']['children']
+    data = response.json()['data']
+    for post in data['children']:
+        hot_list.append(post['data']['title'])
+    after = data['after']
+    dist = data['dist']
+    if (after):
+        count_words(subreddit, [], hot_list, viewed_count + dist, after)
 
-        for post in posts:
-            title = post['data']['title']
-            for word in word_list:
-                word = word.lower()
-                count = title.lower().count(word)
-                if count > 0:
-                    if word in word_count:
-                        word_count[word] += count
-                    else:
-                        word_count[word] = count
+    if viewed_count == 0:
+        result = {}
+        word_list = [word.lower() for word in word_list]
+        hot_words = ' '.join(hot_list).lower().split(' ')
+        for hot_word in hot_words:
+            for search_word in word_list:
+                if hot_word == search_word:
+                    result.setdefault(search_word, 0)
+                    result[search_word] += 1
 
-        after = data['data']['after']
-        if after is not None:
-            return count_words(subreddit, word_list, after, word_count)
-        else:
-            sorted_word_count = sorted(word_count.items(), key=lambda x: (-x[1], x[0]))
-            for word, count in sorted_word_count:
-                print(f"{word}: {count}")
-    else:
-        print("Invalid subreddit or no matching posts.")
-
-# Example usage
-subreddit = "news"
-word_list = ["javascript", "python", "java"]
-count_words(subreddit, word_list)
+        for word, count in sorted(
+            sorted(result.items()), key=lambda x: x[1], reverse=True
+        ):
+            print("{}: {}".format(word, count))
